@@ -1,3 +1,21 @@
+'use client';
+
+import { use } from 'react';
+import { usePolicy } from '@/hooks/usePolicies';
+import { useWallet } from '@/hooks/useWallet';
+import { OracleDataWidget } from '@/components/OracleDataWidget';
+import { PolicyStatusTimeline } from '@/components/PolicyStatusTimeline';
+import { Badge } from '@/components/Badge';
+import { FullPageSpinner } from '@/components/LoadingSpinner';
+import { formatUSDC, formatDate, timeLeft } from '@/lib/format';
+import { ClaimStatus } from '@/components/ClaimStatus';
+
+export default function PolicyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id }            = use(params);
+  const { policy, loading } = usePolicy(id);
+  const { address }       = useWallet();
+
+  if (loading) return <FullPageSpinner />;
 import PolicyDetailClient from './policy-detail-client';
 
 export function generateStaticParams() {
@@ -102,6 +120,7 @@ export default function PolicyDetailPage({
     );
   }
 
+  const canClaim = policy.status === 'Active' && address === policy.policyholder;
   if (!policy) {
     return (
       <main className="mx-auto max-w-7xl px-6 py-20 text-center">
